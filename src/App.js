@@ -1,22 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import moment from 'moment';
-import 'moment/locale/fr'
+import { v4 as uuidv4 } from 'uuid';
 
-import { TextInput, Button, Box, Title, Paper, Text, Group } from '@mantine/core';
+import { TextInput, Button, Box, Title, Paper, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useListState } from '@mantine/hooks';
+import { DragDropContext } from 'react-beautiful-dnd';
 
+import List from './components/List';
 import './App.css';
 
 function App() {
-  const [todos, setTodos] = useState(
+  const [todos, todosHandlers] = useListState(
     [
       {
-        text: "Use it to create cards, dropdowns, modals and other components that require background",
-        date: Date.now()
+        id: uuidv4(),
+        text: "Premier todo test",
+        type: "todo",
+        created: Date.now(),
+        edited: null,
+      },
+      {
+        id: uuidv4(),
+        text: "deuxieme todo test",
+        type: "archives",
+        created: Date.now(),
+        edited: Date.now(),
       }
     ]
   );
+
+  const [columns, setColumns] = useState({})
+
+  useEffect(() => {
+    setColumns({
+      ["todo"]: {
+        name: "To do",
+        items: todos.filter(elt => elt.type == "todo")
+      },
+      ["archives"]: {
+        name: "Archives",
+        items: todos.filter(elt => elt.type == "archives")
+      }
+    })
+  }, [])
 
   const form = useForm({
     initialValues: {
@@ -24,13 +51,68 @@ function App() {
     },
   });
 
-  const handleSubmit = (values) => console.log(values);
+  const handleSubmit = ({todo}) => {
+    const newItem = {
+      id: uuidv4(), 
+      text: todo, 
+      created: Date.now(),
+      edited: null,
+    }
+
+    form.setFieldValue('todo', '');
+
+    const column = columns["todo"];
+    setColumns({
+      ...columns,
+      ["todo"]: {
+        ...column,
+        items: [newItem, ...column.items]
+      }
+    })
+  };
+
+  const onDragEnd = (result, columns, setColumns) => {
+    if (!result.destination) return;
+    const { source, destination } = result;
+  
+    if (source.droppableId !== destination.droppableId) {
+      const sourceColumn = columns[source.droppableId];
+      const destColumn = columns[destination.droppableId];
+      const sourceItems = [...sourceColumn.items];
+      const destItems = [...destColumn.items];
+      const [removed] = sourceItems.splice(source.index, 1);
+      destItems.splice(destination.index, 0, removed);
+      setColumns({
+        ...columns,
+        [source.droppableId]: {
+          ...sourceColumn,
+          items: sourceItems
+        },
+        [destination.droppableId]: {
+          ...destColumn,
+          items: destItems
+        }
+      });
+    } else {
+      const column = columns[source.droppableId];
+      const copiedItems = [...column.items];
+      const [removed] = copiedItems.splice(source.index, 1);
+      copiedItems.splice(destination.index, 0, removed);
+      setColumns({
+        ...columns,
+        [source.droppableId]: {
+          ...column,
+          items: copiedItems
+        }
+      });
+    }
+  };
 
   return (
     <div className="App">
       <Title order={1}>Todolist Siu et Ju</Title>
       <Box sx={{ marginTop: 20 }} mx="auto">
-        <form onSubmit={form.onSubmit(handleSubmit)} className="box">
+        <form onSubmit={form.onSubmit(handleSubmit)} className="form">
           <TextInput
             sx={{ width: '50vw' }}
             required
@@ -42,34 +124,16 @@ function App() {
         </form>
       </Box>
       <Box sx={{ marginTop: 20}} max="auto" className="box">
-        <Paper shadow="xl" radius="md" p="xl" sx={{ marginRight: 20}} className="card" withBorder>
-          <Title order={3}>Todo</Title>
-          {
-            todos.map(todo => (
-              <Paper sx={{ marginTop: 10}} shadow="md" radius="lg" p="md" withBorder>
-                <Group position="right" >
-                  <Text color="gray" size="sm">
-                    Créé le : {moment(todo.date).format('lll')}
-                  </Text>
-                  <Button type="submit">Submit</Button>
-                </Group>
-                <Text>
-                  {todo.text}
-                </Text>
-              </Paper>
-            ))
-          }
-        </Paper>
-        <Paper shadow="xl" radius="md" p="xl" className="card" withBorder >
-          <Title order={3}>Archives</Title>
-          <Paper sx={{ marginTop: 10}} shadow="md" radius="lg" p="md" withBorder>
-            <Text>Paper is the most basic ui component</Text>
-            <Text>
-              Use it to create cards, dropdowns, modals and other components that require background
-              with shadow
-            </Text>
-          </Paper>
-        </Paper>
+        <DragDropContext
+            onDragEnd={result => onDragEnd(result, columns, setColumns)}
+        >
+          {Object.entries(columns).map(([columnId, column], index) => (
+            <Paper key={columnId} shadow="xl" radius="md" p="xl" className="card" withBorder>
+              <Title order={3}>{column.name}</Title>
+              <List items={column.items} itemHandlers={todosHandlers} columnId={columnId}/>
+            </Paper>
+          ))}
+        </DragDropContext>
       </Box>
     </div>
   );
