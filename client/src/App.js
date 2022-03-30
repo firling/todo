@@ -77,7 +77,7 @@ function App() {
       const [removed] = sourceItems.splice(source.index, 1);
       removed.edited = Date.now();
       destItems.splice(destination.index, 0, removed);
-      setColumns({
+      const newCol = {
         ...columns,
         [source.droppableId]: {
           ...sourceColumn,
@@ -87,22 +87,25 @@ function App() {
           ...destColumn,
           items: destItems
         }
-      });
-      Api.changeColumn()
+      }
+      setColumns(newCol);
+      Api.changePosition(newCol)
+      Api.changeColumn(removed.id, destination.droppableId)
     } else {
       const column = columns[source.droppableId];
       const copiedItems = [...column.items];
       const [removed] = copiedItems.splice(source.index, 1);
       copiedItems.splice(destination.index, 0, removed);
-      setColumns({
+      const newCol = {
         ...columns,
         [source.droppableId]: {
           ...column,
           items: copiedItems
         }
-      });
+      }
+      setColumns(newCol);
+      Api.changePosition(newCol)
     }
-    Api.changePosition()
   };
 
   return (

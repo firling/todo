@@ -23,3 +23,5 @@ import Route from '@ioc:Adonis/Core/Route'
 Route.get('/', 'TodosController.index')
 Route.post('/add', 'TodosController.add')
 Route.post('/remove', 'TodosController.remove')
+Route.post('/changeColumn', 'TodosController.changeColumn')
+Route.post('/changePosition', 'TodosController.changePosition')

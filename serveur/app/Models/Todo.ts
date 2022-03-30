@@ -15,4 +15,7 @@ export default class Todo extends BaseModel {
 
   @column()
   public edited: string | null
+
+  @column()
+  public position: number
 }

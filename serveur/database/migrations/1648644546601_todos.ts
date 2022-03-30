@@ -11,6 +11,7 @@ export default class Todos extends BaseSchema {
       table.string('type')
       table.string('created')
       table.string('edited')
+      table.integer('position')
     })
   }
 
