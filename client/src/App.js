@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-import { v4 as uuidv4 } from 'uuid';
-
 import { TextInput, Button, Box, Title, Paper, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import List from './components/List';
-import Api from './Api';
+import { get, add, remove, changePosition, changeColumn } from './Api';
 import './App.css';
 
 function App() {
@@ -15,7 +13,7 @@ function App() {
   const [columns, setColumns] = useState({})
 
   useEffect(async () => {
-    Api.get().then(res => {
+    get().then(res => {
       setColumns({
         ["todo"]: {
           name: "To do",
@@ -36,7 +34,7 @@ function App() {
   });
 
   const handleSubmit = async ({todo}) => {
-    const newItem = await Api.add(todo);
+    const newItem = await add(todo);
 
     form.setFieldValue('todo', '');
 
@@ -62,7 +60,7 @@ function App() {
         items: column.items
       }
     })
-    Api.remove(id);
+    remove(id);
   }
 
   const onDragEnd = (result, columns, setColumns) => {
@@ -89,8 +87,8 @@ function App() {
         }
       }
       setColumns(newCol);
-      Api.changePosition(newCol)
-      Api.changeColumn(removed.id, destination.droppableId)
+      changePosition(newCol)
+      changeColumn(removed.id, destination.droppableId)
     } else {
       const column = columns[source.droppableId];
       const copiedItems = [...column.items];
@@ -104,7 +102,7 @@ function App() {
         }
       }
       setColumns(newCol);
-      Api.changePosition(newCol)
+      changePosition(newCol)
     }
   };
 
