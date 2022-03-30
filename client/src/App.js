@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { TextInput, Button, Box, Title, Paper, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useListState } from '@mantine/hooks';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import List from './components/List';
@@ -12,37 +11,21 @@ import Api from './Api';
 import './App.css';
 
 function App() {
-  const [todos, todosHandlers] = useListState(
-    [
-      {
-        id: uuidv4(),
-        text: "Premier todo test",
-        type: "todo",
-        created: Date.now(),
-        edited: null,
-      },
-      {
-        id: uuidv4(),
-        text: "deuxieme todo test",
-        type: "archives",
-        created: Date.now(),
-        edited: Date.now(),
-      }
-    ]
-  );
 
   const [columns, setColumns] = useState({})
 
-  useEffect(() => {
-    setColumns({
-      ["todo"]: {
-        name: "To do",
-        items: todos.filter(elt => elt.type == "todo")
-      },
-      ["archives"]: {
-        name: "Archives",
-        items: todos.filter(elt => elt.type == "archives")
-      }
+  useEffect(async () => {
+    Api.get().then(res => {
+      setColumns({
+        ["todo"]: {
+          name: "To do",
+          items: res.filter(elt => elt.type == "todo")
+        },
+        ["archives"]: {
+          name: "Archives",
+          items: res.filter(elt => elt.type == "archives") 
+        }
+      })
     })
   }, [])
 
@@ -52,13 +35,8 @@ function App() {
     },
   });
 
-  const handleSubmit = ({todo}) => {
-    const newItem = {
-      id: uuidv4(), 
-      text: todo, 
-      created: Date.now(),
-      edited: null,
-    }
+  const handleSubmit = async ({todo}) => {
+    const newItem = await Api.add(todo);
 
     form.setFieldValue('todo', '');
 
@@ -70,8 +48,6 @@ function App() {
         items: [newItem, ...column.items]
       }
     })
-
-    Api.add();
   };
 
   const handleDelete = (id) => {
@@ -86,7 +62,7 @@ function App() {
         items: column.items
       }
     })
-    Api.remove();
+    Api.remove(id);
   }
 
   const onDragEnd = (result, columns, setColumns) => {

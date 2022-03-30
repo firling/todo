@@ -8,7 +8,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 function List({items, columnId, handleDelete}) {
   const itemMap = items.map((item, index) => (
-    <Draggable key={item.id} index={index} draggableId={item.id}>
+    <Draggable key={`${item.id}`} index={index} draggableId={`${item.id}`}>
       {(provided) => (
         <Paper 
           sx={{ marginTop: 10, width: '100%'}}
@@ -20,12 +20,12 @@ function List({items, columnId, handleDelete}) {
         >
         <Group position="right" >
           <Text color="gray" size="xs">
-            Créé le : {moment(item.created).format('lll')}
+            Créé le : {moment(+item.created).format('lll')}
           </Text>
           {columnId == "archives" && (
             <>
               <Text color="gray" size="xs">
-                  Et archivé le : {moment(item.edited).format('lll')}
+                  Et archivé le : {moment(+item.edited).format('lll')}
               </Text>
               <Button variant="outline" color="red" radius="xl" size="xs" onClick={() => handleDelete(item.id)}>
                 Supprimer
