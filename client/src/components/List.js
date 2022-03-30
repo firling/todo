@@ -3,10 +3,10 @@ import React from 'react';
 import moment from 'moment';
 import 'moment/locale/fr'
 
-import { Paper, Text, Group } from '@mantine/core';
+import { Paper, Text, Group, Button } from '@mantine/core';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
-function List({items, columnId}) {
+function List({items, columnId, handleDelete}) {
   const itemMap = items.map((item, index) => (
     <Draggable key={item.id} index={index} draggableId={item.id}>
       {(provided) => (
@@ -19,13 +19,18 @@ function List({items, columnId}) {
           ref={provided.innerRef}
         >
         <Group position="right" >
-          <Text color="gray" size="sm">
+          <Text color="gray" size="xs">
             Créé le : {moment(item.created).format('lll')}
           </Text>
           {columnId == "archives" && (
-            <Text color="gray" size="sm">
-                Et archivé le : {moment(item.edited).format('lll')}
-            </Text>
+            <>
+              <Text color="gray" size="xs">
+                  Et archivé le : {moment(item.edited).format('lll')}
+              </Text>
+              <Button variant="outline" color="red" radius="xl" size="xs" onClick={() => handleDelete(item.id)}>
+                Supprimer
+              </Button>
+            </>
           )}
         </Group>
         <Text>

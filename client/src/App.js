@@ -8,6 +8,7 @@ import { useListState } from '@mantine/hooks';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import List from './components/List';
+import Api from './Api';
 import './App.css';
 
 function App() {
@@ -69,7 +70,24 @@ function App() {
         items: [newItem, ...column.items]
       }
     })
+
+    Api.add();
   };
+
+  const handleDelete = (id) => {
+    if (!window.confirm("Supprimer cet élément?")) return;
+    const column = columns["archives"];
+    const index = column.items.findIndex((elem) => elem.id === id);
+    column.items.splice(index, 1);
+    setColumns({
+      ...columns,
+      ['archives']: {
+        ...column,
+        items: column.items
+      }
+    })
+    Api.remove();
+  }
 
   const onDragEnd = (result, columns, setColumns) => {
     if (!result.destination) return;
@@ -81,6 +99,7 @@ function App() {
       const sourceItems = [...sourceColumn.items];
       const destItems = [...destColumn.items];
       const [removed] = sourceItems.splice(source.index, 1);
+      removed.edited = Date.now();
       destItems.splice(destination.index, 0, removed);
       setColumns({
         ...columns,
@@ -93,6 +112,7 @@ function App() {
           items: destItems
         }
       });
+      Api.changeColumn()
     } else {
       const column = columns[source.droppableId];
       const copiedItems = [...column.items];
@@ -106,6 +126,7 @@ function App() {
         }
       });
     }
+    Api.changePosition()
   };
 
   return (
@@ -130,7 +151,7 @@ function App() {
           {Object.entries(columns).map(([columnId, column], index) => (
             <Paper key={columnId} shadow="xl" radius="md" p="xl" className="card" withBorder>
               <Title order={3}>{column.name}</Title>
-              <List items={column.items} itemHandlers={todosHandlers} columnId={columnId}/>
+              <List items={column.items} columnId={columnId} handleDelete={handleDelete}/>
             </Paper>
           ))}
         </DragDropContext>
