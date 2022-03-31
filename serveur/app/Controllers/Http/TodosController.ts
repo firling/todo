@@ -1,4 +1,3 @@
-// import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Todo from 'App/Models/Todo'
 
@@ -39,8 +38,8 @@ export default class TodosController {
     public async changePosition({ request }) {
         const data = request.body();
         const { ids } = data;
-        Object.values(ids).map((id) => {
-            id.items.reverse().forEach(async (elt, index) => {
+        Object.values(ids).map((id: any) => {
+            id.items.reverse().forEach(async (elt: any, index: number) => {
                 await Database
                     .from('todos')
                     .where('id', elt.id)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { TextInput, Button, Box, Title, Paper, Text } from '@mantine/core';
+import { TextInput, Button, Box, Title, Paper } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DragDropContext } from 'react-beautiful-dnd';
 
@@ -12,16 +12,16 @@ function App() {
 
   const [columns, setColumns] = useState({})
 
-  useEffect(async () => {
+  useEffect(() => {
     get().then(res => {
-      setColumns({
-        ["todo"]: {
-          name: "To do",
-          items: res.filter(elt => elt.type == "todo")
+       setColumns({
+        'todo': {
+          name: 'To do',
+          items: res.filter(elt => elt.type === 'todo')
         },
-        ["archives"]: {
-          name: "Archives",
-          items: res.filter(elt => elt.type == "archives") 
+        'archives': {
+          name: 'Archives',
+          items: res.filter(elt => elt.type === 'archives') 
         }
       })
     })
@@ -38,10 +38,10 @@ function App() {
 
     form.setFieldValue('todo', '');
 
-    const column = columns["todo"];
+    const column = columns['todo'];
     setColumns({
       ...columns,
-      ["todo"]: {
+      'todo': {
         ...column,
         items: [newItem, ...column.items]
       }
@@ -49,13 +49,13 @@ function App() {
   };
 
   const handleDelete = (id) => {
-    if (!window.confirm("Supprimer cet élément?")) return;
-    const column = columns["archives"];
+    if (!window.confirm('Supprimer cet élément?')) return;
+    const column = columns['archives'];
     const index = column.items.findIndex((elem) => elem.id === id);
     column.items.splice(index, 1);
     setColumns({
       ...columns,
-      ['archives']: {
+      'archives': {
         ...column,
         items: column.items
       }
@@ -108,7 +108,7 @@ function App() {
 
   return (
     <div className="App">
-      <Title order={1}>Todolist Siu et Ju</Title>
+      <Title order={1}>{ process.env.REACT_APP_TITLE }</Title>
       <Box sx={{ marginTop: 20 }} mx="auto">
         <form onSubmit={form.onSubmit(handleSubmit)} className="form">
           <TextInput

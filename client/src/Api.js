@@ -1,6 +1,6 @@
 var axios = require('axios');
 
-var url = 'http://127.0.0.1:3333'
+var url = process.env.REACT_APP_BASE_SERV_URL
 
 export const add = async (text) => {
     const res = await axios.post(`${url}/add`, {text})
@@ -26,7 +26,3 @@ export const get = async () => {
     const res = await axios.get(`${url}/`)
     return res.data
 }
-
-// module.exports = {
-//     add, remove, changeColumn, changePosition, get
-// }

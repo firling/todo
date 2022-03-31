@@ -22,7 +22,7 @@ function List({items, columnId, handleDelete}) {
           <Text color="gray" size="xs">
             Créé le : {moment(+item.created).format('lll')}
           </Text>
-          {columnId == "archives" && (
+          {columnId === 'archives' && (
             <>
               <Text color="gray" size="xs">
                   Et archivé le : {moment(+item.edited).format('lll')}
